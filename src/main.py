@@ -1,13 +1,32 @@
-# Step 0: Simple test to verify environment and agent framework
+# Step 1: Agent Design & Logic Explanation
 
-# A simple test agent
-def test_agent(input_value: int) -> int:
-    return input_value * 2
+from agents.percentage_agent import PercentageAgent
+from agents.arithmetic_agent import ArithmeticAgent
+from agents.audit_agent import AuditAgent
 
-if __name__ == "__main__": # Our main block
-    print("\n-------Step 0-------")
-    input_value = 5
-    output_value = test_agent(input_value)
+if __name__ == "__main__":
+    percentage_agent = PercentageAgent()
+    arithmetic_agent = ArithmeticAgent()
+    audit_agent = AuditAgent()
 
-    print(f"Input: {input_value}")
-    print(f"Output: {output_value}\n")
+    input_data = {
+        "value": 200,
+        "percentage": 10
+    }
+
+    input_data_arithmetic = {
+        "value": 200,
+        "operand": 0,
+        "operation": "divide"
+    }
+
+    input_data_audit = {
+        "value": 200,
+    }
+
+    output = percentage_agent.run(input_data)
+    output_arithmetic = arithmetic_agent.run(input_data_arithmetic)
+    output_audit = audit_agent.run(input_data_audit)
+    print(output)
+    print(output_arithmetic)
+    print(output_audit)
