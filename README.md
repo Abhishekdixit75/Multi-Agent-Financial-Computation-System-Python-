@@ -112,7 +112,6 @@ src/
 ## 👨‍💻 Author
 
 **Abhishek Dixit**
-*Backend Intern Assignment - SteinnLabs*
 
 ---
 *Built with ❤️ and Python.*
