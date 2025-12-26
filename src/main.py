@@ -64,6 +64,8 @@ class RunnableTask(Task):
         Otherwise, fallback to standard CrewAI execution.
         """
         if self.function:
+            print(f"\nAgent: {self.agent.role if self.agent else 'Unknown'}", flush=True)
+            
             # Handle context argument if the function expects it
             import inspect
             sig = inspect.signature(self.function)
@@ -77,12 +79,12 @@ class RunnableTask(Task):
             # CrewAI usually expects a string in .raw
             result_str = str(raw_result)
             
-            # Print the JSON output as requested
+            # Print Output
             import json
             if isinstance(raw_result, dict):
-                print(json.dumps(raw_result, indent=2), flush=True)
+                print(f"Output: {json.dumps(raw_result)}", flush=True)
             else:
-                print(result_str, flush=True)
+                print(f"Output: {result_str}", flush=True)
             
             task_output = TaskOutput(
                 description=self.description,
@@ -100,6 +102,7 @@ class RunnableTask(Task):
 
 # Task 1: PercentageAgent
 def percentage_task_logic():
+    print(f"Input: {initial_data}", flush=True)
     result = percentage_agent_logic.run(initial_data)
     result["base_value"] = initial_data["value"]
     return result
@@ -141,6 +144,7 @@ def arithmetic_task_logic(context=None):
         "operation": "add",
         "operand": percentage_output
     }
+    print(f"Input: {arithmetic_input}", flush=True)
 
     return arithmetic_agent_logic.run(arithmetic_input)
 
@@ -167,6 +171,7 @@ def audit_task_logic(context=None):
     else:
         raise ValueError("Previous task output has no data")
 
+    print(f"Input: {arithmetic_output}", flush=True)
     audit_result = audit_agent_logic.run(arithmetic_output)
 
     if audit_result["status"] != "PASS":
@@ -194,8 +199,48 @@ crew = Crew(
 )
 
 if __name__ == "__main__":
-    print("\n--- Step 2: Sequential Agent Orchestration ---\n")
-    result = crew.kickoff()
+    # print("\n--- Step 3: Compound Interest Loop (3 Years) ---\n")
     
-    print("\nFinal Output:")
-    print(result)
+    # Initial State
+    current_balance = 20000
+    years = 5
+    
+    print(f"\np = {current_balance}, r = {initial_data['percentage']}, t = {years}\n")
+
+    for year in range(1, years + 1):
+        print(f"\n--- Year {year} ---")
+        
+        # Update inputs for the new year
+        initial_data["value"] = current_balance
+        
+        # Run the crew
+        result = crew.kickoff()
+        
+        try:
+             # Extract the new balance from the result
+             if isinstance(result, str):
+                 import ast
+                 res_dict = ast.literal_eval(result)
+             elif hasattr(result, 'raw'):
+                 import ast
+                 res_dict = ast.literal_eval(result.raw)
+             else:
+                 res_dict = result
+
+             new_balance = res_dict["value"]
+             
+             # JSON output for the final year balance
+             # import json
+             # print(f"\nFinal Balance Year {year}: {new_balance}")
+             
+             # Exact format as requested
+             # print(f"Year {year} → {int(new_balance)}")
+             
+             # Update state for next iteration
+             current_balance = new_balance
+
+        except Exception as e:
+            print(f"Error processing year {year} output: {e}")
+            break
+
+    print(f"\nFinal Compound Balance after {years} years: {current_balance}")
